@@ -1,0 +1,6 @@
+./.vscode
+./test.jpg
+./testIR.png
+./libfreenectExtras
+./libfreenectWrapperDemos
+*.dat

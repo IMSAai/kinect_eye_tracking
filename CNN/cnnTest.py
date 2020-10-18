@@ -69,7 +69,7 @@ def run(dev, data, timestamp):
 
 ############### setup ###############
 model = Net()
-model.load_state_dict(torch.load(r"./CNN/models/all_data_full_pass.plt"))
+model.load_state_dict(torch.load("./CNN/models/all_data_full_pass.plt"))
 model.eval()
 model.share_memory()
 

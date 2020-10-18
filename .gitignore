@@ -1,6 +1,6 @@
 ./.vscode
-./test.jpg
-./testIR.png
+./test/test.jpg
+./test/testIR.png
 ./libfreenectExtras
 ./libfreenectWrapperDemos
 *.dat

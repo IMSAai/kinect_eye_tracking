@@ -43,7 +43,15 @@ def body(*args):
 
 def update_screen():
     """Upates position of ball on Tkinter GUI"""
-    canvas.coords(ball, current_x - ball_radius, current_y - ball_radius, current_x + ball_radius, current_y + ball_radius)
+    x = min(max(0, current_x), dims[0])
+    y = min(max(0, current_y), dims[1])
+
+    x1 = x - ball_radius
+    x2 = x + ball_radius
+    y1 = y - ball_radius
+    y2 = y + ball_radius
+
+    canvas.coords(ball, x1, y1, x2, y2)
     canvas.update()
     
 

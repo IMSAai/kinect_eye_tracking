@@ -88,7 +88,7 @@ def run(dev, data, timestamp):
 if __name__ == "__main__":
     ############### setup ###############
     model = Net()
-    model.load_state_dict(torch.load(r"./cnn/models/all_data_full_pass.plt"))
+    model.load_state_dict(torch.load(r"/home/eto/Desktop/kinect_eye_tracking/cnn/models/all_data_full_pass.plt"))
     model.eval()
     model.share_memory()
 

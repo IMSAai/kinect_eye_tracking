@@ -3,6 +3,7 @@ import torch.nn as nn
 import freenect
 from threading import Thread
 from network1 import Net
+import tkinter as tk
 
 
 def formatData(data):
@@ -38,9 +39,14 @@ def body(*args):
     """Body callback function for interfacing with kinect data stream."""
     if not keep_running:
         raise freenect.Kill
+    update_screen()
 
-def update_screen(x, y):
-    pass
+def update_screen():
+    """Upates position of ball on Tkinter GUI"""
+    canvas.coords(ball, current_x - ball_radius, current_y - ball_radius, current_x + ball_radius, current_y + ball_radius)
+    canvas.update()
+    
+
 
 def get_gaze(data):
     """
@@ -50,7 +56,12 @@ def get_gaze(data):
                 data (2d numpy array): A numpy array containing infrared intensity values.
     """
     output = predict(data)
-    print ("x:{:.1f}\ny:{:.1f}".format(output[0][0].item()*dims[0], output[0][1].item()*dims[1]))
+    global current_x
+    global current_y
+    current_x = output[0][0].item()*dims[0]
+    current_y = output[0][1].item()*dims[1]
+    print ("x:{:.1f}\ny:{:.1f}".format(current_x, current_y))
+
     
 def run(dev, data, timestamp):
     """
@@ -63,27 +74,43 @@ def run(dev, data, timestamp):
     """
     process = Thread(target=get_gaze, args=(data,))
     process.start()
+    # get_gaze(data)
 
 
+if __name__ == "__main__":
+    ############### setup ###############
+    model = Net()
+    model.load_state_dict(torch.load(r"./cnn/models/all_data_full_pass.plt"))
+    model.eval()
+    model.share_memory()
 
 
-############### setup ###############
-model = Net()
-model.load_state_dict(torch.load("./CNN/models/all_data_full_pass.plt"))
-model.eval()
-model.share_memory()
+    ctx = freenect.init()
+    dev = freenect.open_device(ctx, 0)
+    #set to high res and to infrared mode
+    freenect.set_video_mode(dev, 2, 2)
+
+    dims = (1920, 1080)
+    keep_running = True
+
+    current_x = dims[0] / 2
+    current_y = dims[1] / 2
+    #####################################
 
 
-ctx = freenect.init()
-dev = freenect.open_device(ctx, 0)
-#set to high res and to infrared mode
-freenect.set_video_mode(dev, 2, 2)
+    ############### simple gui overlay ###############
+    root = tk.Tk()
+    root.title("gaze position")
+    root.wait_visibility(root)
+    root.wm_attributes('-alpha', .1)
+    canvas = tk.Canvas(root, width = 1920, height = 1080)
+    canvas.pack()
 
-dims = (1920, 1080)
-keep_running = True
-#####################################
+    ball_radius = 20
+    ball = canvas.create_oval(dims[0]/2 - ball_radius, dims[1]/2 - ball_radius, dims[0]/2 + ball_radius, dims[1]/2 + ball_radius, fill="red")
+    root.update()
+     #################################################
 
-#callback
-freenect.runloop(dev=dev,
-                 video=run,
-                 body=body)
+    freenect.runloop(dev=dev,
+                    video=run,
+                    body=body)
